@@ -5,7 +5,7 @@ from src.service.service_usuario import ServiceUsuario
 
 class TestServiceUsuario:
 
-    # Utilizando o recurso de fixture do pytest para reutilizar das mensagens
+    # Utilizando o recurso de fixture do pytest para reutilizar alguns dados
     # baseado em: https://docs.pytest.org/en/7.1.x/how-to/fixtures.html e
     # https://www.alura.com.br/artigos/montando-cenarios-de-testes-com-o-pytest
 
@@ -19,6 +19,11 @@ class TestServiceUsuario:
     def msg_invalida(self):
         return 'Usuário inválido'
 
+    # Usuario removido
+    @pytest.fixture
+    def msg_usuario_del(self):
+        return 'Usuário removido'
+
     # Nome do usuario
     @pytest.fixture
     def nome_usuario(self):
@@ -30,7 +35,7 @@ class TestServiceUsuario:
         return 'Buscando um sentido pra vida'
 
     '''Testes'''
-
+    ## Testes para criacao de um usuario. ##
     # Teste para verificar se o nome e a profissao sao validas.
     def test_add_usuario_nome_valido_profissao_valida(self, nome_usuario, profissao, msg_usuario_add):
         # Setup
@@ -101,40 +106,49 @@ class TestServiceUsuario:
         assert service.store.bd == store_esperado
 
 
-    #### DELETAR
-    def test_del_usuario_valido(self):
+    ## Testes para excluir um usuario ##
+    # Excluir um usuario com sucesso.
+    def test_del_usuario_valido(self, nome_usuario, profissao, msg_usuario_del):
         # Setup
         service = ServiceUsuario()
-        nome_valido = 'Alucard'
-        profissao_valida = 'Buscando um sentido pra vida'
-        result_esperado = 'Usuario removido'
-        service.add_usuario(nome_valido, profissao_valida)
+        service.add_usuario(nome_usuario, profissao)
         store_esperado = []
 
         # Chamada
-        result = service.del_usuario(nome_valido)
+        result = service.del_usuario(nome_usuario)
 
         # Avaliacao
-        assert result == result_esperado
+        assert result == msg_usuario_del
         assert service.store.bd == store_esperado
 
-    def test_del_usuario_invalido(self):
+    # Teste para verificar quando o usuario e invalido (e.g. nome == none)
+    def test_del_usuario_invalido(self, nome_usuario, profissao, msg_invalida):
         # Setup
         service = ServiceUsuario()
-        nome_valido = 'Alucard'
-        profissao_valida = 'Buscando um sentido pra vida'
-        nome_invalido = 'Filó'
-        result_esperado = 'Usuario invalido'
-        service.add_usuario(nome_valido, profissao_valida)
+        nome_invalido = None
+        service.add_usuario(nome_usuario, profissao)
 
         # Chamada
         result = service.del_usuario(nome_invalido)
 
         # Avaliacao
-        assert result == result_esperado
+        assert result == msg_invalida
         assert service.store.bd != []
-        assert service.store.bd[0].nome == nome_valido
-        assert service.store.bd[0].profissao == profissao_valida
+        assert service.store.bd[0].nome == nome_usuario
+        assert service.store.bd[0].profissao == profissao
 
+    # Teste para verificar quando o usuario nao esta cadastrado
+    def test_del_usuario_inexistente(self, nome_usuario, profissao, msg_invalida):
+        # Setup
+        service = ServiceUsuario()
+        nome_inexistente = 'Dracula'
+        service.add_usuario(nome_usuario, profissao)
 
+        # Chamada
+        result = service.del_usuario(nome_inexistente)
 
+        # Avaliacao
+        assert result == msg_invalida
+        assert service.store.bd != []
+        assert service.store.bd[0].nome == nome_usuario
+        assert service.store.bd[0].profissao == profissao
