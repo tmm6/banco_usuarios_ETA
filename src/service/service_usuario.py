@@ -3,19 +3,25 @@ from src.models.usuario import Usuario
 
 
 class ServiceUsuario:
+
     def __init__(self):
         self.store = Store()
+        self.msg_usuario_invalido = 'Usuário inválido'
+        self.msg_usuario_adicionado = 'Usuário adicionado'
+        self.msg_usuario_removido = 'Usuário removido'
 
+
+    # Adicioanr usuario
     def add_usuario(self, nome, profissao):
         if nome != None and profissao != None:
             if type(nome) == str and type(profissao) == str:
                 usuario = Usuario(nome, profissao)
                 self.store.bd.append(usuario)
             else:
-                return 'Usuario invalido'
+                return self.msg_usuario_invalido
         else:
-            return 'Usuario invalido'
-        return 'Usuario adicionado'
+            return self.msg_usuario_invalido
+        return self.msg_usuario_adicionado
 
     def edit_usuario(self, nome, nome_novo, profissao):
         if nome != None:
@@ -30,14 +36,24 @@ class ServiceUsuario:
         else:
             return 'Usuario invalido'
 
-
-    def del_usuario(self, nome):
-        if nome != None:
+    # Buscar usuario
+    def search_usuario_nome(self, nome):
+        if nome is not None:
             for usuario in self.store.bd:
                 if usuario.nome == nome:
-                    self.store.bd.remove(usuario)
-                    return 'Usuario removido'
-            return 'Usuario invalido'
+                    return usuario
+            return False
         else:
-            return 'Usuario invalido'
+            return False
+
+
+    # Excluir usuario
+    def del_usuario(self, nome):
+        usuario = self.search_usuario_nome(nome)
+        if usuario:
+            self.store.bd.remove(usuario)
+            return self.msg_usuario_removido
+        else:
+            return self.msg_usuario_invalido
+
 
