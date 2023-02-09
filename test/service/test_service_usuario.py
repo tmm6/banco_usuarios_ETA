@@ -19,6 +19,11 @@ class TestServiceUsuario:
     def msg_invalida(self):
         return 'Usuário inválido'
 
+    # Usuario atualizado
+    @pytest.fixture
+    def msg_usuario_edit(self):
+        return 'Usuário atualizado'
+
     # Usuario removido
     @pytest.fixture
     def msg_usuario_del(self):
@@ -104,6 +109,58 @@ class TestServiceUsuario:
         # Avaliacao
         assert result == msg_invalida
         assert service.store.bd == store_esperado
+
+
+    ## Testes para editar um usuario ##
+    # Editar um usuario com sucesso.
+    def test_edit_usuario_valido(self, nome_usuario, profissao, msg_usuario_edit):
+        # Setup
+        service = ServiceUsuario()
+        nome_atualizado = 'Dr. Estranho'
+        prof_atualizada = 'Médico'
+        service.add_usuario(nome_usuario, profissao)
+
+        # Chamada
+        result = service.edit_usuario(nome_usuario, nome_atualizado, prof_atualizada)
+
+        # Avaliacao
+        assert result == msg_usuario_edit
+        assert service.store.bd[0].nome == nome_atualizado
+        assert service.store.bd[0].profissao == prof_atualizada
+
+    # Editar o usuario atual seja invalido (e.g. nome = none).
+    def test_edit_usuario_invalido(self, nome_usuario, profissao, msg_invalida):
+        # Setup
+        service = ServiceUsuario()
+        nome_invalido = None
+        nome_atualizado = 'Dr. Estranho'
+        prof_atualizada = 'Médico'
+        service.add_usuario(nome_usuario, profissao)
+
+        # Chamada
+        result = service.edit_usuario(nome_invalido, nome_atualizado, prof_atualizada)
+
+        # Avaliacao
+        assert result == msg_invalida
+        assert service.store.bd[0].nome == nome_usuario
+        assert service.store.bd[0].profissao == profissao
+
+    # Editar o usuario atual nao exista.
+    def test_edit_usuario_inexistente(self, nome_usuario, profissao, msg_invalida):
+        # Setup
+        service = ServiceUsuario()
+        nome_inexistente = 'Dracula'
+        nome_atualizado = 'Dr. Estranho'
+        prof_atualizada = 'Médico'
+        service.add_usuario(nome_usuario, profissao)
+
+        # Chamada
+        result = service.edit_usuario(nome_inexistente, nome_atualizado, prof_atualizada)
+
+        # Avaliacao
+        assert result == msg_invalida
+        assert service.store.bd[0].nome == nome_usuario
+        assert service.store.bd[0].profissao == profissao
 
 
     ## Testes para excluir um usuario ##
