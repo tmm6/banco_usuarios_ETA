@@ -9,6 +9,7 @@ class ServiceUsuario:
         self.msg_usuario_invalido = 'Usuário inválido'
         self.msg_usuario_adicionado = 'Usuário adicionado'
         self.msg_usuario_removido = 'Usuário removido'
+        self.msg_usuario_atualizado = 'Usuário atualizado'
 
 
     # Adicioanr usuario
@@ -23,19 +24,6 @@ class ServiceUsuario:
             return self.msg_usuario_invalido
         return self.msg_usuario_adicionado
 
-    def edit_usuario(self, nome, nome_novo, profissao):
-        if nome != None:
-            for usuario in self.store.bd:
-                if usuario.nome == nome:
-                    index = self.store.bd.index(usuario)
-                    print(index)
-                    usuario_editado = Usuario(nome_novo, profissao)
-                    self.store.bd[index] = usuario_editado
-                    return 'Usuario atualizado'
-            return 'Usuario invalido'
-        else:
-            return 'Usuario invalido'
-
     # Buscar usuario
     def search_usuario_nome(self, nome):
         if nome is not None:
@@ -46,6 +34,15 @@ class ServiceUsuario:
         else:
             return False
 
+    def edit_usuario(self, nome, nome_novo, nova_profissao):
+        usuario = self.search_usuario_nome(nome)
+        if usuario:
+            index = self.store.bd.index(usuario)
+            usuario_editado = Usuario(nome_novo, nova_profissao)
+            self.store.bd[index] = usuario_editado
+            return self.msg_usuario_atualizado
+        else:
+            return self.msg_usuario_invalido
 
     # Excluir usuario
     def del_usuario(self, nome):
